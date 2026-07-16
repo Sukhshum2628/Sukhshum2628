@@ -44,7 +44,7 @@ FastAPI  TypeScript
 
 📧 **Email:** sukhsham2628@gmail.com
 
-💼 **LinkedIn:** [YOUR_LINKEDIN_URL](https://www.linkedin.com/in/sukhshum-vaishnavi/)
+💼 **LinkedIn:** https://www.linkedin.com/in/sukhshum-vaishnavi/
 
 🌐 **Portfolio:** https://portfolio-55ohuaxia-sukhsham2628-7978s-projects.vercel.app
 
