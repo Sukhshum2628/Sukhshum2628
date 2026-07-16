@@ -1,16 +1,53 @@
-## Hi there 👋
+────────────────────────────────────────
 
-<!--
-**Sukhshum2628/Sukhshum2628** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
+##Hi, I'm Sukhshum 👋
 
-Here are some ideas to get you started:
+Software Engineer
 
-- 🔭 I’m currently working on ...
-- 🌱 I’m currently learning ...
-- 👯 I’m looking to collaborate on ...
-- 🤔 I’m looking for help with ...
-- 💬 Ask me about ...
-- 📫 How to reach me: ...
-- 😄 Pronouns: ...
-- ⚡ Fun fact: ...
--->
+Distributed Systems
+Multiplayer Networking
+AI
+Backend Development
+
+────────────────────────────────────────
+
+🚀 Current Project
+
+STALKER-MP
+
+Persistent Multiplayer Framework
+for the X-Ray Engine
+
+[GitHub] [Documentation]
+
+────────────────────────────────────────
+
+💼 Featured Projects
+
+🎮 STALKER-MP
+
+🏗 ConstructIQ
+
+🚨 EduSafe
+
+📝 Flask Blog
+
+────────────────────────────────────────
+
+🛠 Tech Stack
+
+C++  Python  Docker  AWS
+React  Flask  MongoDB
+FastAPI  TypeScript
+
+────────────────────────────────────────
+
+🌐 Portfolio
+
+📄 Resume
+
+💼 LinkedIn
+
+📧 Contact
+
+────────────────────────────────────────
