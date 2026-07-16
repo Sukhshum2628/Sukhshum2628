@@ -4,9 +4,9 @@
 
 Software Engineer
 
-Distributed Systems
-Multiplayer Networking
-AI
+Distributed Systems,
+Multiplayer Networking,
+AI,
 Backend Development
 
 ────────────────────────────────────────
