@@ -1,6 +1,6 @@
 ────────────────────────────────────────
 
-Hi, I'm Sukhshum 👋
+# Hi, I'm Sukhshum 👋
 
 Software Engineer
 
@@ -11,7 +11,7 @@ Backend Development
 
 ────────────────────────────────────────
 
-🚀 Current Project
+# 🚀 Current Project
 
 STALKER-MP
 
@@ -20,7 +20,7 @@ for the X-Ray Engine
 
 ────────────────────────────────────────
 
-💼 Featured Projects
+# 💼 Featured Projects
 
 🎮 STALKER-MP
 
@@ -32,7 +32,7 @@ for the X-Ray Engine
 
 ────────────────────────────────────────
 
-🛠 Tech Stack
+# 🛠 Tech Stack
 
 C++  Python  Docker  AWS
 React  Flask  MongoDB
