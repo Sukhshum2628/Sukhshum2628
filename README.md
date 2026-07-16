@@ -1,6 +1,6 @@
 ────────────────────────────────────────
 
-##Hi, I'm Sukhshum 👋
+Hi, I'm Sukhshum 👋
 
 Software Engineer
 
