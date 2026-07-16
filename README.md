@@ -18,8 +18,6 @@ STALKER-MP
 Persistent Multiplayer Framework
 for the X-Ray Engine
 
-[GitHub] [Documentation]
-
 ────────────────────────────────────────
 
 💼 Featured Projects
@@ -42,12 +40,12 @@ FastAPI  TypeScript
 
 ────────────────────────────────────────
 
-🌐 Portfolio
+# 📫 Contact Me
 
-📄 Resume
+📧 **Email:** sukhsham2628@gmail.com
 
-💼 LinkedIn
+💼 **LinkedIn:** [YOUR_LINKEDIN_URL](https://www.linkedin.com/in/sukhshum-vaishnavi/)
 
-📧 Contact
+🌐 **Portfolio:** https://portfolio-55ohuaxia-sukhsham2628-7978s-projects.vercel.app
 
 ────────────────────────────────────────
