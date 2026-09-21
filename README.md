@@ -46,6 +46,6 @@ FastAPI  TypeScript
 
 💼 **LinkedIn:** https://www.linkedin.com/in/sukhshum-vaishnavi/
 
-🌐 **Portfolio:** https://portfolio-55ohuaxia-sukhsham2628-7978s-projects.vercel.app
+🌐 **Portfolio:** https://sukhshum-portfolio.vercel.app/
 
 ────────────────────────────────────────
