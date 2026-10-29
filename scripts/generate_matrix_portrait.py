@@ -1,32 +1,20 @@
 #!/usr/bin/env python3
 """
-Generate a high-detail, resolution-enhanced Matrix ASCII animation (GIF and static PNG)
-of the Berserk Brand of Sacrifice symbol directly from the user's updated GitHub profile
-avatar (assets/avatar-source.jpg).
+Generate a unified, single-window Matrix Workstation display (animated GIF and static PNG)
+combining the Matrix Brand of Sacrifice digital rain on the left and the large, readable
+terminal initialization console on the right inside one single, cohesive terminal interface.
 
-Key features:
-1. Genuine image-to-ASCII conversion pipeline using Pillow:
-   - Loads updated avatar (Brand of Sacrifice in red/blood eclipse).
-   - Sharpens and enhances contrast to delineate the Brand of Sacrifice rune,
-     the inner/outer eclipse contours, and negative spaces.
-   - High-density character ramp:
-     '@#%8&WM$B0QOZ*ahkbdpqwmXvjtLJtf1i!lI;:,"^`\'. '
-   - Aspect-ratio correction for monospace fonts.
-2. Resolution:
-   - Configurable character grid (150 columns x 92 rows = 13,800 character cells).
-   - High-definition rendering inside a 640 x 580 px canvas.
-3. Authentic Matrix Rain Animation with Progressive Symbol Reveal:
-   - Matrix digital rain cascades vertically downwards with green terminal characters:
-     0 1 / \ | # @ % * + . :
-   - The Brand of Sacrifice emerges and resolves through the falling character field.
-   - Once resolved, continuous subtle falling green characters stream in the background
-     and around the emblem while keeping the Brand of Sacrifice 100% legible, sharp,
-     and rock-solid without jitter.
-4. Outputs:
-   - assets/matrix-portrait.png: Static master ASCII rendering of the Brand of Sacrifice.
-   - assets/matrix-portrait.gif: Smooth Matrix digital rain animation revealing and
-     surrounding the Brand of Sacrifice.
-   - assets/terminal-banner.gif: Cohesive companion terminal sequence.
+Dimensions: 1040 x 480 px
+- Left pane (Matrix Emblem): 440 px wide x 480 px tall (Brand of Sacrifice in green digital rain).
+- Right pane (Terminal Console): 600 px wide x 480 px tall (Large, prominent bash sequence).
+- Single unified outer window border, shared title bar, and seamless division.
+- Zero gap, perfectly aligned top and bottom edges, identical near-black background.
+- Zero jitter / rock-solid stability during hold frames.
+
+Outputs:
+- assets/matrix-portrait.gif (Unified master workstation animation, < 1MB)
+- assets/matrix-portrait.png (Unified static fallback)
+- assets/terminal-banner.gif (Updated standalone banner fallback)
 """
 
 import math
@@ -35,27 +23,31 @@ import random
 import urllib.request
 from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter, ImageOps
 
-# Canvas Dimensions
-PORTRAIT_WIDTH = 640
-PORTRAIT_HEIGHT = 580
-BANNER_WIDTH = 720
-BANNER_HEIGHT = 140
+# Total Canvas Dimensions
+CANVAS_WIDTH = 1040
+CANVAS_HEIGHT = 480
+
+# Sub-pane division
+LEFT_WIDTH = 450
+RIGHT_WIDTH = CANVAS_WIDTH - LEFT_WIDTH  # 590 px
+HEADER_HEIGHT = 28
+FOOTER_HEIGHT = 26
 
 # Colors (Terminal Workstation / Matrix Green Palette)
 COLOR_BG = (11, 15, 16)               # Near-black #0b0f10
 COLOR_BG_CARD = (17, 23, 26)          # #11171a
 COLOR_BORDER = (35, 75, 90)           # #234b5a
+COLOR_DIVIDER = (25, 55, 65)          # Subtle inner divider
 COLOR_ACCENT = (85, 230, 165)         # Terminal green #55e6a5
 COLOR_ACCENT_BRIGHT = (140, 255, 195) # Glowing highlight #8cffc3
 COLOR_CYAN = (102, 217, 239)          # Muted cyan #66d9ef
 COLOR_DIM = (35, 80, 65)              # Background rain glyphs
-COLOR_DIM_CYAN = (25, 60, 75)
 COLOR_TEXT_MUTED = (120, 140, 145)
 
 RAMP = "@#%8&WM$B0QOZ*ahkbdpqwmXvjtLJtf1i!lI;:,\"^`'. "
 MATRIX_CHARS = ["0", "1", "/", "\\", "|", "#", "@", "%", "*", "+", "-", ".", ":"]
 
-def get_font(size=6, bold=False):
+def get_font(size=12, bold=False):
     candidates = [
         "consola.ttf" if not bold else "consolab.ttf",
         "cour.ttf" if not bold else "courbd.ttf",
@@ -82,34 +74,30 @@ def ensure_avatar_source():
         f.write(resp.read())
     return source_path
 
-def generate_matrix_portrait():
+def generate_unified_workstation():
     source_path = ensure_avatar_source()
     src_img = Image.open(source_path).convert("RGB")
-    print(f"Loaded source image from {source_path}: {src_img.size}")
+    print(f"Loaded source avatar: {src_img.size}")
 
-    # Convert to grayscale
+    # Process Brand of Sacrifice avatar
     gray = src_img.convert("L")
-
-    # High-detail preprocessing:
-    # Auto-contrast & sharpness enhancement to delineate Brand rune contours and eclipse aura
     eq = ImageOps.autocontrast(gray, cutoff=1)
     sharp = eq.filter(ImageFilter.UnsharpMask(radius=2, percent=190, threshold=2))
     sharp = ImageEnhance.Sharpness(sharp).enhance(2.0)
 
-    # Resolution grid:
-    # 150 columns x 92 rows = 13,800 character cells inside a 640 x 580 canvas
-    cols = 150
-    rows = 92
+    # Left pane grid: 104 columns x 68 rows inside 450x426 px active area
+    cols = 104
+    rows = 68
     resized = sharp.resize((cols, rows), Image.Resampling.LANCZOS)
 
     char_w = 4.10
-    char_h = 5.65
-    start_x = (PORTRAIT_WIDTH - (cols * char_w)) / 2
-    start_y = 26 + ((PORTRAIT_HEIGHT - 48 - (rows * char_h)) / 2)
+    char_h = 6.10
+    active_h = CANVAS_HEIGHT - HEADER_HEIGHT - FOOTER_HEIGHT
+    start_x = (LEFT_WIDTH - (cols * char_w)) / 2
+    start_y = HEADER_HEIGHT + ((active_h - (rows * char_h)) / 2)
 
     random.seed(42)
 
-    # Build character cell map from actual image pixels
     cells = []
     ramp_len = len(RAMP)
 
@@ -117,7 +105,6 @@ def generate_matrix_portrait():
         for c in range(cols):
             lum = resized.getpixel((c, r))
 
-            # Segment empty outer boundary vs Brand of Sacrifice emblem
             if lum < 18:
                 is_symbol = False
                 target_char = " "
@@ -125,14 +112,9 @@ def generate_matrix_portrait():
             else:
                 is_symbol = True
                 norm_lum = lum / 255.0
-                # Invert density so bright rune lines and glowing eclipse receive dense/bright glyphs
                 ramp_idx = int((1.0 - norm_lum) * (ramp_len - 1))
                 target_char = RAMP[ramp_idx]
 
-                # Matrix color grading based on luminance:
-                # Core bright rune lines: Glowing bright highlight green #8cffc3 & cyan #66d9ef
-                # Midtone eclipse aura: Terminal green #55e6a5
-                # Outer shadow: Dim matrix emerald
                 if norm_lum > 0.65:
                     char_color = COLOR_ACCENT_BRIGHT
                 elif norm_lum > 0.35:
@@ -151,47 +133,13 @@ def generate_matrix_portrait():
                 "color": char_color
             })
 
-    font = get_font(size=6)
-    header_font = get_font(size=10)
-
-    # Render static master image (clean Brand of Sacrifice ASCII fallback)
-    static_img = Image.new("RGB", (PORTRAIT_WIDTH, PORTRAIT_HEIGHT), COLOR_BG)
-    s_draw = ImageDraw.Draw(static_img)
-    s_draw.rectangle([(1, 1), (PORTRAIT_WIDTH - 2, PORTRAIT_HEIGHT - 2)], outline=COLOR_BORDER, width=1)
-    s_draw.rectangle([(1, 1), (PORTRAIT_WIDTH - 2, 22)], fill=COLOR_BG_CARD)
-    s_draw.ellipse([(8, 8), (14, 14)], fill=(230, 85, 85))
-    s_draw.ellipse([(18, 8), (24, 14)], fill=(230, 190, 85))
-    s_draw.ellipse([(28, 8), (34, 14)], fill=COLOR_ACCENT)
-    s_draw.text((46, 6), f"sukhshum@workstation: ~/brand-of-sacrifice.asc [HI-RES {cols}x{rows}]", fill=COLOR_TEXT_MUTED, font=header_font)
-
-    for cell in cells:
-        if cell["target_char"] != " ":
-            s_draw.text((cell["x"], cell["y"]), cell["target_char"], fill=cell["color"], font=font)
-
-    s_draw.rectangle([(4, PORTRAIT_HEIGHT - 20), (PORTRAIT_WIDTH - 4, PORTRAIT_HEIGHT - 4)], fill=COLOR_BG_CARD)
-    s_draw.text((12, PORTRAIT_HEIGHT - 18), "[ BRAND OF SACRIFICE // BERSERK MATRIX TELEMETRY ]", fill=COLOR_CYAN, font=header_font)
-
-    static_path = os.path.join("assets", "matrix-portrait.png")
-    static_img.save(static_path, format="PNG")
-    print(f"Generated static fallback: {static_path} ({os.path.getsize(static_path) / 1024:.1f} KB)")
-
-    # Matrix Digital Rain Animation Sequence:
-    # Phase 1: Digital rain sweeps down from the top (frames 0 to 18).
-    # Phase 2: Brand of Sacrifice resolves fully into crisp ASCII.
-    # Phase 3: Brand remains locked and 100% visible while subtle green characters continue
-    #          raining smoothly around and behind it.
-    reveal_frames = 18
-    ambient_rain_frames = 16
-    total_frames = reveal_frames + ambient_rain_frames
-
-    # Rain streams for each column
+    # Left pane rain streams
     streams = []
     for c in range(cols):
         start_frame = random.uniform(0.0, 5.0)
-        speed = random.uniform(4.8, 6.8)  # cells per frame downward
-        stream_len = random.randint(8, 18)
-        # Background ambient cycle period
-        ambient_speed = random.uniform(2.5, 4.5)
+        speed = random.uniform(4.5, 6.5)
+        stream_len = random.randint(8, 16)
+        ambient_speed = random.uniform(2.2, 4.0)
         ambient_offset = random.uniform(0.0, float(rows))
         streams.append({
             "start_frame": start_frame,
@@ -201,27 +149,106 @@ def generate_matrix_portrait():
             "ambient_offset": ambient_offset
         })
 
+    # Fonts
+    matrix_font = get_font(size=6)
+    header_font = get_font(size=11, bold=True)
+    footer_font = get_font(size=10)
+    term_font = get_font(size=16)          # Large readable terminal text (1.7x size)
+    term_bold = get_font(size=16, bold=True)
+
+    # Right pane terminal lines:
+    terminal_lines = [
+        ("$ ./initialize-profile.sh --target=Sukhshum2628", COLOR_CYAN, 0),
+        ("[ OK ] Loading profile emblem: Brand of Sacrifice", COLOR_ACCENT, 6),
+        ("[ OK ] Initializing Matrix renderer: Digital rain active", COLOR_ACCENT, 12),
+        ("[ OK ] Mounting engineering modules: STALKER-MP [FLAGSHIP]", COLOR_ACCENT, 18),
+        ("[ OK ] Systems online // Host authority active", COLOR_ACCENT_BRIGHT, 24),
+    ]
+
+    reveal_frames = 20
+    ambient_frames = 14
+    total_frames = reveal_frames + ambient_frames
+
     frames = []
 
+    # Pre-render master static fallback frame (100% resolved, zero noise on symbol)
+    master_img = Image.new("RGB", (CANVAS_WIDTH, CANVAS_HEIGHT), COLOR_BG)
+    m_draw = ImageDraw.Draw(master_img)
+
+    # Outer border
+    m_draw.rectangle([(1, 1), (CANVAS_WIDTH - 2, CANVAS_HEIGHT - 2)], outline=COLOR_BORDER, width=1)
+    # Unified Title bar
+    m_draw.rectangle([(1, 1), (CANVAS_WIDTH - 2, HEADER_HEIGHT)], fill=COLOR_BG_CARD)
+    m_draw.ellipse([(10, 9), (18, 17)], fill=(230, 85, 85))
+    m_draw.ellipse([(22, 9), (30, 17)], fill=(230, 190, 85))
+    m_draw.ellipse([(34, 9), (42, 17)], fill=COLOR_ACCENT)
+    m_draw.text((56, 7), "sukhshum@workstation: ~/brand-of-sacrifice.asc", fill=COLOR_TEXT_MUTED, font=header_font)
+    m_draw.text((CANVAS_WIDTH - 180, 7), "bash - 80x24 (online)", fill=COLOR_CYAN, font=header_font)
+
+    # Subtle vertical divider separating left & right pane
+    m_draw.line([(LEFT_WIDTH, HEADER_HEIGHT), (LEFT_WIDTH, CANVAS_HEIGHT - FOOTER_HEIGHT)], fill=COLOR_DIVIDER, width=1)
+
+    # Left: Master Brand of Sacrifice
+    for cell in cells:
+        if cell["target_char"] != " ":
+            m_draw.text((cell["x"], cell["y"]), cell["target_char"], fill=cell["color"], font=matrix_font)
+
+    # Right: Fully typed terminal lines
+    term_start_x = LEFT_WIDTH + 28
+    term_start_y = HEADER_HEIGHT + 36
+    term_line_gap = 46
+
+    for idx, (line_text, color, _) in enumerate(terminal_lines):
+        y = term_start_y + idx * term_line_gap
+        if line_text.startswith("[ OK ]"):
+            m_draw.text((term_start_x, y), "[ OK ]", fill=COLOR_ACCENT_BRIGHT, font=term_bold)
+            m_draw.text((term_start_x + 65, y), line_text[6:], fill=color, font=term_font)
+        else:
+            m_draw.text((term_start_x, y), line_text, fill=color, font=term_font)
+
+    # Blinking cursor at end of last line
+    last_y = term_start_y + (len(terminal_lines) - 1) * term_line_gap
+    last_x = term_start_x + len(terminal_lines[-1][0]) * 10
+    m_draw.rectangle([(term_start_x, term_start_y + len(terminal_lines) * term_line_gap), (term_start_x + 10, term_start_y + len(terminal_lines) * term_line_gap + 16)], fill=COLOR_ACCENT)
+
+    # Unified footer bar
+    m_draw.rectangle([(4, CANVAS_HEIGHT - FOOTER_HEIGHT), (CANVAS_WIDTH - 4, CANVAS_HEIGHT - 4)], fill=COLOR_BG_CARD)
+    m_draw.text((12, CANVAS_HEIGHT - FOOTER_HEIGHT + 5), "[ EMBLEM: BRAND OF SACRIFICE // BERSERK MATRIX TELEMETRY ]", fill=COLOR_CYAN, font=footer_font)
+    m_draw.text((CANVAS_WIDTH - 300, CANVAS_HEIGHT - FOOTER_HEIGHT + 5), "[ WORKSTATION READY // DETERMINISM LOCKED ]", fill=COLOR_ACCENT, font=footer_font)
+
+    # Save static fallback PNG
+    static_path = os.path.join("assets", "matrix-portrait.png")
+    master_img.save(static_path, format="PNG")
+    print(f"Generated static fallback: {static_path} ({os.path.getsize(static_path) / 1024:.1f} KB)")
+
+    # Render animation frames
     for f in range(total_frames):
-        img = Image.new("RGB", (PORTRAIT_WIDTH, PORTRAIT_HEIGHT), COLOR_BG)
+        img = Image.new("RGB", (CANVAS_WIDTH, CANVAS_HEIGHT), COLOR_BG)
         draw = ImageDraw.Draw(img)
 
-        # Header bar
-        draw.rectangle([(1, 1), (PORTRAIT_WIDTH - 2, PORTRAIT_HEIGHT - 2)], outline=COLOR_BORDER, width=1)
-        draw.rectangle([(1, 1), (PORTRAIT_WIDTH - 2, 22)], fill=COLOR_BG_CARD)
-        draw.ellipse([(8, 8), (14, 14)], fill=(230, 85, 85))
-        draw.ellipse([(18, 8), (24, 14)], fill=(230, 190, 85))
-        draw.ellipse([(28, 8), (34, 14)], fill=COLOR_ACCENT)
-        draw.text((46, 6), f"sukhshum@workstation: ~/brand-of-sacrifice.asc [MATRIX RAIN STREAM]", fill=COLOR_TEXT_MUTED, font=header_font)
+        # Single outer border
+        draw.rectangle([(1, 1), (CANVAS_WIDTH - 2, CANVAS_HEIGHT - 2)], outline=COLOR_BORDER, width=1)
+        # Shared Title bar
+        draw.rectangle([(1, 1), (CANVAS_WIDTH - 2, HEADER_HEIGHT)], fill=COLOR_BG_CARD)
+        draw.ellipse([(10, 9), (18, 17)], fill=(230, 85, 85))
+        draw.ellipse([(22, 9), (30, 17)], fill=(230, 190, 85))
+        draw.ellipse([(34, 9), (42, 17)], fill=COLOR_ACCENT)
+        draw.text((56, 7), "sukhshum@workstation: ~/brand-of-sacrifice.asc", fill=COLOR_TEXT_MUTED, font=header_font)
+        draw.text((CANVAS_WIDTH - 180, 7), "bash - 80x24 (online)", fill=COLOR_CYAN, font=header_font)
 
-        # Footer bar
-        status_text = "[ MATRIX RAIN: RECONSTRUCTING SACRIFICE EMBLEM ]" if f < reveal_frames else "[ BRAND OF SACRIFICE // DIGITAL RAIN ACTIVE // ONLINE ]"
-        status_color = COLOR_TEXT_MUTED if f < reveal_frames else COLOR_CYAN
-        draw.rectangle([(4, PORTRAIT_HEIGHT - 20), (PORTRAIT_WIDTH - 4, PORTRAIT_HEIGHT - 4)], fill=COLOR_BG_CARD)
-        draw.text((12, PORTRAIT_HEIGHT - 18), status_text, fill=status_color, font=header_font)
+        # Vertical divider line
+        draw.line([(LEFT_WIDTH, HEADER_HEIGHT), (LEFT_WIDTH, CANVAS_HEIGHT - FOOTER_HEIGHT)], fill=COLOR_DIVIDER, width=1)
 
-        # Calculate stream heads for frame f
+        # Shared Footer bar
+        draw.rectangle([(4, CANVAS_HEIGHT - FOOTER_HEIGHT), (CANVAS_WIDTH - 4, CANVAS_HEIGHT - 4)], fill=COLOR_BG_CARD)
+        if f < reveal_frames:
+            draw.text((12, CANVAS_HEIGHT - FOOTER_HEIGHT + 5), "[ INITIALIZING: RECONSTRUCTING NEURAL MATRIX TELEMETRY ]", fill=COLOR_TEXT_MUTED, font=footer_font)
+            draw.text((CANVAS_WIDTH - 250, CANVAS_HEIGHT - FOOTER_HEIGHT + 5), "[ STATUS: LOADING MODULES... ]", fill=COLOR_TEXT_MUTED, font=footer_font)
+        else:
+            draw.text((12, CANVAS_HEIGHT - FOOTER_HEIGHT + 5), "[ EMBLEM: BRAND OF SACRIFICE // DIGITAL RAIN ACTIVE ]", fill=COLOR_CYAN, font=footer_font)
+            draw.text((CANVAS_WIDTH - 300, CANVAS_HEIGHT - FOOTER_HEIGHT + 5), "[ WORKSTATION READY // DETERMINISM LOCKED ]", fill=COLOR_ACCENT, font=footer_font)
+
+        # Calculate stream heads for left pane
         stream_heads = {}
         for c in range(cols):
             st = streams[c]
@@ -231,10 +258,10 @@ def generate_matrix_portrait():
                 else:
                     head = -1.0
             else:
-                # Ambient rain streaming around the symbol
                 head = (st["ambient_offset"] + (f - reveal_frames) * st["ambient_speed"]) % rows
             stream_heads[c] = head
 
+        # Render Left Pane (Matrix Digital Rain + Brand of Sacrifice)
         for cell in cells:
             c = cell["col"]
             r = cell["row"]
@@ -242,54 +269,63 @@ def generate_matrix_portrait():
             st = streams[c]
 
             if f < reveal_frames:
-                # Reveal phase:
                 if head >= (r + 1.0):
-                    # Rain passed this cell -> locks into the Brand character
                     char = cell["target_char"]
                     if char != " ":
-                        draw.text((cell["x"], cell["y"]), char, fill=cell["color"], font=font)
+                        draw.text((cell["x"], cell["y"]), char, fill=cell["color"], font=matrix_font)
                 elif head >= (r - st["stream_len"]):
-                    # Falling rain stream head / trail over this cell
                     dist_from_head = head - r
                     if dist_from_head < 1.2:
                         char = random.choice(MATRIX_CHARS)
-                        draw.text((cell["x"], cell["y"]), char, fill=COLOR_ACCENT_BRIGHT, font=font)
+                        draw.text((cell["x"], cell["y"]), char, fill=COLOR_ACCENT_BRIGHT, font=matrix_font)
                     else:
                         char = random.choice(MATRIX_CHARS)
                         dim_factor = max(0.15, 1.0 - (dist_from_head / st["stream_len"]))
                         color = (int(COLOR_ACCENT[0] * dim_factor), int(COLOR_ACCENT[1] * dim_factor), int(COLOR_ACCENT[2] * dim_factor))
-                        draw.text((cell["x"], cell["y"]), char, fill=color, font=font)
-                else:
-                    # Not yet reached
-                    pass
+                        draw.text((cell["x"], cell["y"]), char, fill=color, font=matrix_font)
             else:
-                # Ambient rain phase (Brand of Sacrifice is 100% resolved and legible):
                 dist = (head - r) % rows
-
                 if cell["is_symbol"] and cell["target_char"] != " ":
-                    # The Brand symbol is permanently locked into its photo character
                     char = cell["target_char"]
-                    # If an ambient rain pulse passes through, gently illuminate it
-                    if dist < 1.4:
-                        color = COLOR_ACCENT_BRIGHT
-                    else:
-                        color = cell["color"]
-                    draw.text((cell["x"], cell["y"]), char, fill=color, font=font)
+                    color = COLOR_ACCENT_BRIGHT if dist < 1.4 else cell["color"]
+                    draw.text((cell["x"], cell["y"]), char, fill=color, font=matrix_font)
                 else:
-                    # In the negative / background space around the emblem: subtle falling matrix glyphs
                     if dist < 1.4:
                         char = random.choice(MATRIX_CHARS)
-                        draw.text((cell["x"], cell["y"]), char, fill=COLOR_ACCENT, font=font)
+                        draw.text((cell["x"], cell["y"]), char, fill=COLOR_ACCENT, font=matrix_font)
                     elif dist < st["stream_len"] * 0.6:
                         trail_factor = max(0.1, 1.0 - (dist / (st["stream_len"] * 0.6)))
                         color = (int(COLOR_DIM[0] * trail_factor), int(COLOR_DIM[1] * trail_factor), int(COLOR_DIM[2] * trail_factor))
                         char = random.choice([".", ":", "|", "/"])
-                        draw.text((cell["x"], cell["y"]), char, fill=color, font=font)
+                        draw.text((cell["x"], cell["y"]), char, fill=color, font=matrix_font)
+
+        # Render Right Pane (Large Synchronized Terminal)
+        for idx, (line_text, color, appear_frame) in enumerate(terminal_lines):
+            y = term_start_y + idx * term_line_gap
+            if f >= appear_frame:
+                chars_visible = min(len(line_text), int((f - appear_frame) * 4) + 1)
+                text_slice = line_text[:chars_visible]
+
+                if text_slice.startswith("[ OK ]"):
+                    draw.text((term_start_x, y), "[ OK ]", fill=COLOR_ACCENT_BRIGHT, font=term_bold)
+                    draw.text((term_start_x + 65, y), text_slice[6:], fill=color, font=term_font)
+                else:
+                    draw.text((term_start_x, y), text_slice, fill=color, font=term_font)
+
+                # Cursor on actively typing line
+                if chars_visible < len(line_text):
+                    cursor_x = term_start_x + (chars_visible * 9.5)
+                    draw.rectangle([(cursor_x, y + 2), (cursor_x + 9, y + 18)], fill=COLOR_ACCENT)
+
+        # Blinking cursor after all lines complete
+        if f >= 26 and (f // 2) % 2 == 0:
+            cursor_y = term_start_y + len(terminal_lines) * term_line_gap
+            draw.rectangle([(term_start_x, cursor_y), (term_start_x + 9, cursor_y + 18)], fill=COLOR_ACCENT)
 
         frames.append(img)
 
-    # Frame durations: 90ms for reveal; 120ms during ambient streaming; final frame hold for 2.0s
-    durations = [90] * reveal_frames + [110] * (ambient_rain_frames - 1) + [2000]
+    # Frame durations: 90ms for reveal; 110ms during ambient; final frame hold for 2.5s
+    durations = [90] * reveal_frames + [110] * (ambient_frames - 1) + [2500]
 
     gif_path = os.path.join("assets", "matrix-portrait.gif")
     frames[0].save(
@@ -300,11 +336,17 @@ def generate_matrix_portrait():
         loop=0,
         optimize=True
     )
-    print(f"Generated Brand of Sacrifice animated portrait: {gif_path} ({os.path.getsize(gif_path) / 1024:.1f} KB)")
+    print(f"Generated unified workstation animated GIF: {gif_path} ({os.path.getsize(gif_path) / 1024:.1f} KB)")
+
+    # Also generate the standalone terminal banner for backward compatibility
+    generate_terminal_banner()
 
 def generate_terminal_banner():
-    font = get_font(size=13)
-    header_font = get_font(size=10)
+    BANNER_WIDTH = 720
+    BANNER_HEIGHT = 160
+    font = get_font(size=14)
+    font_bold = get_font(size=14, bold=True)
+    header_font = get_font(size=11)
 
     lines = [
         ("$ ./initialize-profile.sh", COLOR_CYAN, 0),
@@ -320,37 +362,33 @@ def generate_terminal_banner():
         img = Image.new("RGB", (BANNER_WIDTH, BANNER_HEIGHT), COLOR_BG)
         draw = ImageDraw.Draw(img)
 
-        # Window border
         draw.rectangle([(1, 1), (BANNER_WIDTH - 2, BANNER_HEIGHT - 2)], outline=COLOR_BORDER, width=1)
-        draw.rectangle([(1, 1), (BANNER_WIDTH - 2, 22)], fill=COLOR_BG_CARD)
-
-        # Window controls
+        draw.rectangle([(1, 1), (BANNER_WIDTH - 2, 24)], fill=COLOR_BG_CARD)
         draw.ellipse([(8, 8), (14, 14)], fill=(230, 85, 85))
         draw.ellipse([(18, 8), (24, 14)], fill=(230, 190, 85))
         draw.ellipse([(28, 8), (34, 14)], fill=COLOR_ACCENT)
         draw.text((45, 6), "bash - 80x24 (sukhshum@workstation:~)", fill=COLOR_TEXT_MUTED, font=header_font)
 
-        y = 32
+        y = 36
         for line_text, color, appear_frame in lines:
             if f >= appear_frame:
                 chars_visible = min(len(line_text), int((f - appear_frame) * 4) + 1)
                 text_slice = line_text[:chars_visible]
 
                 if text_slice.startswith("[ OK ]"):
-                    draw.text((16, y), "[ OK ]", fill=COLOR_ACCENT_BRIGHT, font=font)
-                    draw.text((64, y), text_slice[6:], fill=color, font=font)
+                    draw.text((16, y), "[ OK ]", fill=COLOR_ACCENT_BRIGHT, font=font_bold)
+                    draw.text((70, y), text_slice[6:], fill=color, font=font)
                 else:
                     draw.text((16, y), text_slice, fill=color, font=font)
 
                 if chars_visible < len(line_text):
-                    cursor_x = 16 + (chars_visible * 8)
-                    draw.rectangle([(cursor_x, y + 2), (cursor_x + 7, y + 14)], fill=COLOR_ACCENT)
+                    cursor_x = 16 + (chars_visible * 8.5)
+                    draw.rectangle([(cursor_x, y + 2), (cursor_x + 8, y + 16)], fill=COLOR_ACCENT)
 
-                y += 24
+                y += 28
 
-        # Blinking cursor
         if f >= 28 and (f // 3) % 2 == 0:
-            draw.rectangle([(16, y + 2), (23, y + 14)], fill=COLOR_ACCENT)
+            draw.rectangle([(16, y + 2), (24, y + 16)], fill=COLOR_ACCENT)
 
         frames.append(img)
 
@@ -364,8 +402,7 @@ def generate_terminal_banner():
         loop=0,
         optimize=True
     )
-    print(f"Generated terminal banner: {gif_path} ({os.path.getsize(gif_path) / 1024:.1f} KB)")
+    print(f"Generated standalone terminal banner: {gif_path} ({os.path.getsize(gif_path) / 1024:.1f} KB)")
 
 if __name__ == "__main__":
-    generate_matrix_portrait()
-    generate_terminal_banner()
+    generate_unified_workstation()

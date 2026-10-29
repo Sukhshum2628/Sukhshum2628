@@ -7,16 +7,7 @@ Distributed Systems • Multiplayer Networking • Backend Engineering • AI Pl
 
 <br/>
 
-<table border="0">
-  <tr>
-    <td width="38%" align="center" valign="middle">
-      <a href="https://github.com/Sukhshum2628"><img src="assets/matrix-portrait.gif" alt="Matrix-style ASCII Brand of Sacrifice with falling green characters" width="260"></a>
-    </td>
-    <td width="62%" align="center" valign="middle">
-      <a href="https://github.com/Sukhshum2628"><img src="assets/terminal-banner.gif" alt="Terminal Initialization"></a>
-    </td>
-  </tr>
-</table>
+<a href="https://github.com/Sukhshum2628"><img src="assets/matrix-portrait.gif" alt="Matrix-style ASCII Brand of Sacrifice and Terminal Workstation" width="100%"></a>
 
 <br/>
 
