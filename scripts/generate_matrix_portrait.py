@@ -1,25 +1,32 @@
 #!/usr/bin/env python3
 """
-Generate an ultra-detailed, high-resolution Matrix ASCII portrait (animated GIF and static PNG)
-directly from the user's actual profile photo (assets/avatar-source.jpg).
+Generate a high-detail, resolution-enhanced Matrix ASCII animation (GIF and static PNG)
+of the Berserk Brand of Sacrifice symbol directly from the user's updated GitHub profile
+avatar (assets/avatar-source.jpg).
 
 Key features:
-1. Ultra-high character resolution (140 columns x 86 rows = 12,040 character cells).
-   Preserves crisp photographic detail: eyes, pupils, eyebrows, eyelids, nose bridge,
-   nostrils, moustache, lips, beard, and hairline.
-2. Authentic Matrix rain stream reveal:
-   - Green digital matrix rain streams fall down from the top across every column.
-   - As the falling streams sweep through the grid, the characters behind the stream
-     heads lock permanently and cleanly into the high-detail portrait characters.
-3. Zero jitter / 100% rock-solid stable hold:
-   - Once all streams pass, all characters are completely locked.
-   - The hold frames are identical copies of the clean master frame with no random
-     character cycling or noise on the resolved face.
-   - Long stable hold (~3.5 seconds) before looping.
+1. Genuine image-to-ASCII conversion pipeline using Pillow:
+   - Loads updated avatar (Brand of Sacrifice in red/blood eclipse).
+   - Sharpens and enhances contrast to delineate the Brand of Sacrifice rune,
+     the inner/outer eclipse contours, and negative spaces.
+   - High-density character ramp:
+     '@#%8&WM$B0QOZ*ahkbdpqwmXvjtLJtf1i!lI;:,"^`\'. '
+   - Aspect-ratio correction for monospace fonts.
+2. Resolution:
+   - Configurable character grid (150 columns x 92 rows = 13,800 character cells).
+   - High-definition rendering inside a 640 x 580 px canvas.
+3. Authentic Matrix Rain Animation with Progressive Symbol Reveal:
+   - Matrix digital rain cascades vertically downwards with green terminal characters:
+     0 1 / \ | # @ % * + . :
+   - The Brand of Sacrifice emerges and resolves through the falling character field.
+   - Once resolved, continuous subtle falling green characters stream in the background
+     and around the emblem while keeping the Brand of Sacrifice 100% legible, sharp,
+     and rock-solid without jitter.
 4. Outputs:
-   - assets/matrix-portrait.png: Ultra-detail master photographic ASCII portrait.
-   - assets/matrix-portrait.gif: Smooth Matrix rain animation revealing the high-detail face.
-   - assets/terminal-banner.gif: Cohesive companion terminal banner.
+   - assets/matrix-portrait.png: Static master ASCII rendering of the Brand of Sacrifice.
+   - assets/matrix-portrait.gif: Smooth Matrix digital rain animation revealing and
+     surrounding the Brand of Sacrifice.
+   - assets/terminal-banner.gif: Cohesive companion terminal sequence.
 """
 
 import math
@@ -30,7 +37,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageEnhance, ImageFilter, ImageOps
 
 # Canvas Dimensions
 PORTRAIT_WIDTH = 640
-PORTRAIT_HEIGHT = 560
+PORTRAIT_HEIGHT = 580
 BANNER_WIDTH = 720
 BANNER_HEIGHT = 140
 
@@ -80,35 +87,29 @@ def generate_matrix_portrait():
     src_img = Image.open(source_path).convert("RGB")
     print(f"Loaded source image from {source_path}: {src_img.size}")
 
-    # Precise photographic crop around face & hair
-    w, h = src_img.size
-    crop_box = (
-        int(w * 0.14),
-        int(h * 0.03),
-        int(w * 0.86),
-        int(h * 0.83)
-    )
-    cropped = src_img.crop(crop_box).convert("L")
+    # Convert to grayscale
+    gray = src_img.convert("L")
 
     # High-detail preprocessing:
-    eq = ImageOps.autocontrast(cropped, cutoff=1)
-    sharp = eq.filter(ImageFilter.UnsharpMask(radius=2, percent=180, threshold=2))
+    # Auto-contrast & sharpness enhancement to delineate Brand rune contours and eclipse aura
+    eq = ImageOps.autocontrast(gray, cutoff=1)
+    sharp = eq.filter(ImageFilter.UnsharpMask(radius=2, percent=190, threshold=2))
     sharp = ImageEnhance.Sharpness(sharp).enhance(2.0)
 
-    # Ultra-high resolution character grid:
-    # 140 columns x 86 rows = 12,040 character cells!
-    cols = 140
-    rows = 86
+    # Resolution grid:
+    # 150 columns x 92 rows = 13,800 character cells inside a 640 x 580 canvas
+    cols = 150
+    rows = 92
     resized = sharp.resize((cols, rows), Image.Resampling.LANCZOS)
 
-    char_w = 4.35
-    char_h = 5.85
+    char_w = 4.10
+    char_h = 5.65
     start_x = (PORTRAIT_WIDTH - (cols * char_w)) / 2
     start_y = 26 + ((PORTRAIT_HEIGHT - 48 - (rows * char_h)) / 2)
 
     random.seed(42)
 
-    # Build ultra-detailed cell map
+    # Build character cell map from actual image pixels
     cells = []
     ramp_len = len(RAMP)
 
@@ -116,24 +117,28 @@ def generate_matrix_portrait():
         for c in range(cols):
             lum = resized.getpixel((c, r))
 
-            # Segment background vs face/hair
-            if lum > 185:
-                is_subject = False
+            # Segment empty outer boundary vs Brand of Sacrifice emblem
+            if lum < 18:
+                is_symbol = False
                 target_char = " "
-                char_color = (20, 45, 35)
+                char_color = (15, 35, 25)
             else:
-                is_subject = True
-                norm_lum = lum / 185.0
-                ramp_idx = int(norm_lum * (ramp_len - 1))
+                is_symbol = True
+                norm_lum = lum / 255.0
+                # Invert density so bright rune lines and glowing eclipse receive dense/bright glyphs
+                ramp_idx = int((1.0 - norm_lum) * (ramp_len - 1))
                 target_char = RAMP[ramp_idx]
 
-                # Luminance color grading:
-                if norm_lum < 0.30:
-                    char_color = COLOR_ACCENT
-                elif norm_lum < 0.65:
+                # Matrix color grading based on luminance:
+                # Core bright rune lines: Glowing bright highlight green #8cffc3 & cyan #66d9ef
+                # Midtone eclipse aura: Terminal green #55e6a5
+                # Outer shadow: Dim matrix emerald
+                if norm_lum > 0.65:
                     char_color = COLOR_ACCENT_BRIGHT
+                elif norm_lum > 0.35:
+                    char_color = COLOR_ACCENT
                 else:
-                    char_color = COLOR_CYAN
+                    char_color = (55, 145, 105)
 
             cells.append({
                 "col": c,
@@ -141,141 +146,171 @@ def generate_matrix_portrait():
                 "x": start_x + c * char_w,
                 "y": start_y + r * char_h,
                 "lum": lum,
-                "is_subject": is_subject,
+                "is_symbol": is_symbol,
                 "target_char": target_char,
                 "color": char_color
             })
 
-    # Falling matrix rain streams:
-    # Each column has a falling stream falling at speed (cells per frame)
-    # The head of the stream moves down from y < 0 to y >= rows
-    # Once the head passes a cell row, that cell locks into the photo character!
-    streams = []
-    for c in range(cols):
-        # Staggered entry from top
-        start_frame = random.uniform(0.0, 7.0)
-        speed = random.uniform(3.8, 5.4)  # cells per frame
-        stream_len = random.randint(8, 16)
-        streams.append({
-            "start_frame": start_frame,
-            "speed": speed,
-            "stream_len": stream_len
-        })
-
     font = get_font(size=6)
     header_font = get_font(size=10)
 
-    # Reveal takes 24 frames; total animation = 24 reveal frames + 30 stable hold frames
-    reveal_frames = 24
-    hold_frames = 30
-    total_frames = reveal_frames + hold_frames
-    frames = []
-
-    # Pre-render the final 100% resolved master frame once to guarantee ZERO jitter during hold
-    master_img = Image.new("RGB", (PORTRAIT_WIDTH, PORTRAIT_HEIGHT), COLOR_BG)
-    master_draw = ImageDraw.Draw(master_img)
-    master_draw.rectangle([(1, 1), (PORTRAIT_WIDTH - 2, PORTRAIT_HEIGHT - 2)], outline=COLOR_BORDER, width=1)
-    master_draw.rectangle([(1, 1), (PORTRAIT_WIDTH - 2, 22)], fill=COLOR_BG_CARD)
-    master_draw.ellipse([(8, 8), (14, 14)], fill=(230, 85, 85))
-    master_draw.ellipse([(18, 8), (24, 14)], fill=(230, 190, 85))
-    master_draw.ellipse([(28, 8), (34, 14)], fill=COLOR_ACCENT)
-    master_draw.text((46, 6), f"sukhshum@workstation: ~/avatar.asc [ULTRA-RES {cols}x{rows}]", fill=COLOR_TEXT_MUTED, font=header_font)
+    # Render static master image (clean Brand of Sacrifice ASCII fallback)
+    static_img = Image.new("RGB", (PORTRAIT_WIDTH, PORTRAIT_HEIGHT), COLOR_BG)
+    s_draw = ImageDraw.Draw(static_img)
+    s_draw.rectangle([(1, 1), (PORTRAIT_WIDTH - 2, PORTRAIT_HEIGHT - 2)], outline=COLOR_BORDER, width=1)
+    s_draw.rectangle([(1, 1), (PORTRAIT_WIDTH - 2, 22)], fill=COLOR_BG_CARD)
+    s_draw.ellipse([(8, 8), (14, 14)], fill=(230, 85, 85))
+    s_draw.ellipse([(18, 8), (24, 14)], fill=(230, 190, 85))
+    s_draw.ellipse([(28, 8), (34, 14)], fill=COLOR_ACCENT)
+    s_draw.text((46, 6), f"sukhshum@workstation: ~/brand-of-sacrifice.asc [HI-RES {cols}x{rows}]", fill=COLOR_TEXT_MUTED, font=header_font)
 
     for cell in cells:
         if cell["target_char"] != " ":
-            master_draw.text((cell["x"], cell["y"]), cell["target_char"], fill=cell["color"], font=font)
+            s_draw.text((cell["x"], cell["y"]), cell["target_char"], fill=cell["color"], font=font)
 
-    master_draw.rectangle([(4, PORTRAIT_HEIGHT - 20), (PORTRAIT_WIDTH - 4, PORTRAIT_HEIGHT - 4)], fill=COLOR_BG_CARD)
-    master_draw.text((12, PORTRAIT_HEIGHT - 18), "[ SUKHSHUM VAISHNAVI // HIGH-RESOLUTION ASCII REVEALED OK ]", fill=COLOR_CYAN, font=header_font)
+    s_draw.rectangle([(4, PORTRAIT_HEIGHT - 20), (PORTRAIT_WIDTH - 4, PORTRAIT_HEIGHT - 4)], fill=COLOR_BG_CARD)
+    s_draw.text((12, PORTRAIT_HEIGHT - 18), "[ BRAND OF SACRIFICE // BERSERK MATRIX TELEMETRY ]", fill=COLOR_CYAN, font=header_font)
 
-    # Save static fallback PNG directly from the rock-solid master frame
     static_path = os.path.join("assets", "matrix-portrait.png")
-    master_img.save(static_path, format="PNG")
-    print(f"Generated ultra-detail static portrait: {static_path} ({os.path.getsize(static_path) / 1024:.1f} KB)")
+    static_img.save(static_path, format="PNG")
+    print(f"Generated static fallback: {static_path} ({os.path.getsize(static_path) / 1024:.1f} KB)")
 
-    # Render reveal frames (0 to reveal_frames - 1)
-    for f in range(reveal_frames):
+    # Matrix Digital Rain Animation Sequence:
+    # Phase 1: Digital rain sweeps down from the top (frames 0 to 18).
+    # Phase 2: Brand of Sacrifice resolves fully into crisp ASCII.
+    # Phase 3: Brand remains locked and 100% visible while subtle green characters continue
+    #          raining smoothly around and behind it.
+    reveal_frames = 18
+    ambient_rain_frames = 16
+    total_frames = reveal_frames + ambient_rain_frames
+
+    # Rain streams for each column
+    streams = []
+    for c in range(cols):
+        start_frame = random.uniform(0.0, 5.0)
+        speed = random.uniform(4.8, 6.8)  # cells per frame downward
+        stream_len = random.randint(8, 18)
+        # Background ambient cycle period
+        ambient_speed = random.uniform(2.5, 4.5)
+        ambient_offset = random.uniform(0.0, float(rows))
+        streams.append({
+            "start_frame": start_frame,
+            "speed": speed,
+            "stream_len": stream_len,
+            "ambient_speed": ambient_speed,
+            "ambient_offset": ambient_offset
+        })
+
+    frames = []
+
+    for f in range(total_frames):
         img = Image.new("RGB", (PORTRAIT_WIDTH, PORTRAIT_HEIGHT), COLOR_BG)
         draw = ImageDraw.Draw(img)
 
-        # Window header
+        # Header bar
         draw.rectangle([(1, 1), (PORTRAIT_WIDTH - 2, PORTRAIT_HEIGHT - 2)], outline=COLOR_BORDER, width=1)
         draw.rectangle([(1, 1), (PORTRAIT_WIDTH - 2, 22)], fill=COLOR_BG_CARD)
         draw.ellipse([(8, 8), (14, 14)], fill=(230, 85, 85))
         draw.ellipse([(18, 8), (24, 14)], fill=(230, 190, 85))
         draw.ellipse([(28, 8), (34, 14)], fill=COLOR_ACCENT)
-        draw.text((46, 6), f"sukhshum@workstation: ~/avatar.asc [ULTRA-RES {cols}x{rows}]", fill=COLOR_TEXT_MUTED, font=header_font)
+        draw.text((46, 6), f"sukhshum@workstation: ~/brand-of-sacrifice.asc [MATRIX RAIN STREAM]", fill=COLOR_TEXT_MUTED, font=header_font)
 
-        # Status footer bar
+        # Footer bar
+        status_text = "[ MATRIX RAIN: RECONSTRUCTING SACRIFICE EMBLEM ]" if f < reveal_frames else "[ BRAND OF SACRIFICE // DIGITAL RAIN ACTIVE // ONLINE ]"
+        status_color = COLOR_TEXT_MUTED if f < reveal_frames else COLOR_CYAN
         draw.rectangle([(4, PORTRAIT_HEIGHT - 20), (PORTRAIT_WIDTH - 4, PORTRAIT_HEIGHT - 4)], fill=COLOR_BG_CARD)
-        draw.text((12, PORTRAIT_HEIGHT - 18), "[ MATRIX RAIN: RECONSTRUCTING NEURAL PROFILE ]", fill=COLOR_TEXT_MUTED, font=header_font)
+        draw.text((12, PORTRAIT_HEIGHT - 18), status_text, fill=status_color, font=header_font)
 
-        # Precalculate stream heads for frame f
+        # Calculate stream heads for frame f
         stream_heads = {}
         for c in range(cols):
             st = streams[c]
-            if f >= st["start_frame"]:
-                head_r = (f - st["start_frame"]) * st["speed"]
+            if f < reveal_frames:
+                if f >= st["start_frame"]:
+                    head = (f - st["start_frame"]) * st["speed"]
+                else:
+                    head = -1.0
             else:
-                head_r = -1.0
-            stream_heads[c] = head_r
+                # Ambient rain streaming around the symbol
+                head = (st["ambient_offset"] + (f - reveal_frames) * st["ambient_speed"]) % rows
+            stream_heads[c] = head
 
         for cell in cells:
             c = cell["col"]
             r = cell["row"]
-            head_r = stream_heads[c]
+            head = stream_heads[c]
             st = streams[c]
 
-            if head_r >= (r + 1.0):
-                # The falling matrix stream has already passed this cell!
-                # It is locked into the final photo character with zero noise.
-                char = cell["target_char"]
-                if char != " ":
-                    draw.text((cell["x"], cell["y"]), char, fill=cell["color"], font=font)
-            elif head_r >= (r - st["stream_len"]):
-                # The falling matrix stream is currently passing over this cell!
-                dist_from_head = head_r - r
-                if dist_from_head < 1.2:
-                    # Bright leading head glyph of the matrix rain
-                    char = random.choice(MATRIX_CHARS)
-                    draw.text((cell["x"], cell["y"]), char, fill=COLOR_ACCENT_BRIGHT, font=font)
+            if f < reveal_frames:
+                # Reveal phase:
+                if head >= (r + 1.0):
+                    # Rain passed this cell -> locks into the Brand character
+                    char = cell["target_char"]
+                    if char != " ":
+                        draw.text((cell["x"], cell["y"]), char, fill=cell["color"], font=font)
+                elif head >= (r - st["stream_len"]):
+                    # Falling rain stream head / trail over this cell
+                    dist_from_head = head - r
+                    if dist_from_head < 1.2:
+                        char = random.choice(MATRIX_CHARS)
+                        draw.text((cell["x"], cell["y"]), char, fill=COLOR_ACCENT_BRIGHT, font=font)
+                    else:
+                        char = random.choice(MATRIX_CHARS)
+                        dim_factor = max(0.15, 1.0 - (dist_from_head / st["stream_len"]))
+                        color = (int(COLOR_ACCENT[0] * dim_factor), int(COLOR_ACCENT[1] * dim_factor), int(COLOR_ACCENT[2] * dim_factor))
+                        draw.text((cell["x"], cell["y"]), char, fill=color, font=font)
                 else:
-                    # Trailing stream glyph fading down
-                    char = random.choice(MATRIX_CHARS)
-                    dim_factor = max(0.15, 1.0 - (dist_from_head / st["stream_len"]))
-                    color = (int(COLOR_ACCENT[0] * dim_factor), int(COLOR_ACCENT[1] * dim_factor), int(COLOR_ACCENT[2] * dim_factor))
-                    draw.text((cell["x"], cell["y"]), char, fill=color, font=font)
+                    # Not yet reached
+                    pass
             else:
-                # The falling matrix stream has not reached here yet; remains dark/empty
-                pass
+                # Ambient rain phase (Brand of Sacrifice is 100% resolved and legible):
+                dist = (head - r) % rows
+
+                if cell["is_symbol"] and cell["target_char"] != " ":
+                    # The Brand symbol is permanently locked into its photo character
+                    char = cell["target_char"]
+                    # If an ambient rain pulse passes through, gently illuminate it
+                    if dist < 1.4:
+                        color = COLOR_ACCENT_BRIGHT
+                    else:
+                        color = cell["color"]
+                    draw.text((cell["x"], cell["y"]), char, fill=color, font=font)
+                else:
+                    # In the negative / background space around the emblem: subtle falling matrix glyphs
+                    if dist < 1.4:
+                        char = random.choice(MATRIX_CHARS)
+                        draw.text((cell["x"], cell["y"]), char, fill=COLOR_ACCENT, font=font)
+                    elif dist < st["stream_len"] * 0.6:
+                        trail_factor = max(0.1, 1.0 - (dist / (st["stream_len"] * 0.6)))
+                        color = (int(COLOR_DIM[0] * trail_factor), int(COLOR_DIM[1] * trail_factor), int(COLOR_DIM[2] * trail_factor))
+                        char = random.choice([".", ":", "|", "/"])
+                        draw.text((cell["x"], cell["y"]), char, fill=color, font=font)
 
         frames.append(img)
 
-    # Frame 24 onwards: The final master frame repeated cleanly (ZERO JITTER)
-    # 35 hold frames at 100ms = 3.5 seconds of perfectly calm, rock-solid display
-    frames.extend([master_img] * hold_frames)
+    # Frame durations: 90ms for reveal; 120ms during ambient streaming; final frame hold for 2.0s
+    durations = [90] * reveal_frames + [110] * (ambient_rain_frames - 1) + [2000]
 
-    # Save animated GIF
     gif_path = os.path.join("assets", "matrix-portrait.gif")
     frames[0].save(
         gif_path,
         save_all=True,
         append_images=frames[1:],
-        duration=100,
+        duration=durations,
         loop=0,
         optimize=True
     )
-    print(f"Generated ultra-detail animated portrait: {gif_path} ({os.path.getsize(gif_path) / 1024:.1f} KB)")
+    print(f"Generated Brand of Sacrifice animated portrait: {gif_path} ({os.path.getsize(gif_path) / 1024:.1f} KB)")
 
 def generate_terminal_banner():
     font = get_font(size=13)
     header_font = get_font(size=10)
 
     lines = [
-        ("$ whoami", COLOR_CYAN, 0),
-        ("Sukhshum Vaishnavi", COLOR_ACCENT_BRIGHT, 6),
-        ("$ loading engineering modules...", COLOR_CYAN, 14),
-        ("[ OK ] Systems online // Host authority active", COLOR_ACCENT, 22),
+        ("$ ./initialize-profile.sh", COLOR_CYAN, 0),
+        ("[ OK ] Loading profile emblem: Brand of Sacrifice", COLOR_ACCENT_BRIGHT, 6),
+        ("[ OK ] Initializing Matrix renderer: Digital rain active", COLOR_ACCENT, 14),
+        ("[ OK ] Systems online // Host authority active", COLOR_ACCENT_BRIGHT, 22),
     ]
 
     total_frames = 34

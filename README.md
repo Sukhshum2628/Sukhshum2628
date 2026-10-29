@@ -7,7 +7,7 @@ Distributed Systems • Multiplayer Networking • Backend Engineering • AI Pl
 
 <br/>
 
-[![Matrix ASCII Avatar](assets/matrix-portrait.gif)](https://github.com/Sukhshum2628)
+[![Matrix-style ASCII Brand of Sacrifice with falling green characters](assets/matrix-portrait.gif)](https://github.com/Sukhshum2628)
 
 <br/>
 
