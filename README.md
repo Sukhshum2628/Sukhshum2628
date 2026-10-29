@@ -7,11 +7,16 @@ Distributed Systems • Multiplayer Networking • Backend Engineering • AI Pl
 
 <br/>
 
-[![Matrix-style ASCII Brand of Sacrifice with falling green characters](assets/matrix-portrait.gif)](https://github.com/Sukhshum2628)
-
-<br/>
-
-[![Terminal Initialization](assets/terminal-banner.gif)](https://github.com/Sukhshum2628)
+<table border="0">
+  <tr>
+    <td width="38%" align="center" valign="middle">
+      <a href="https://github.com/Sukhshum2628"><img src="assets/matrix-portrait.gif" alt="Matrix-style ASCII Brand of Sacrifice with falling green characters" width="260"></a>
+    </td>
+    <td width="62%" align="center" valign="middle">
+      <a href="https://github.com/Sukhshum2628"><img src="assets/terminal-banner.gif" alt="Terminal Initialization"></a>
+    </td>
+  </tr>
+</table>
 
 <br/>
 
