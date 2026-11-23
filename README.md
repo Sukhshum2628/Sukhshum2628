@@ -93,7 +93,7 @@ STATUS      : Developing STALKER-MP & exploring distributed architectures
 - **Backend & APIs:**  `FastAPI`, `Flask`, `Socket.IO`, `REST`
 - **Databases & Vector:** `MongoDB`, `MySQL`, `PostgreSQL`, `ChromaDB`, `Firebase Firestore`
 - **Cloud & DevOps:** `Docker`,  `GitHub Actions`, `Linux / Bash`, `Vercel`, `Render`
-- **AI & Machine Learning:**  `NumPy`, `Pandas`, `RAGAS`, `LangChain`, `LangGraph`, `XGBoost`, `ONNX`, `Transformers`, `DeepEval`
+- **AI & Machine Learning:**  `NumPy`, `Pandas`, `RAGAS`, `LangChain`, `LangGraph`, `XGBoost`, `ONNX`, `Transformers`, `DeepEval`, `MLflow`
 
 
 ---
