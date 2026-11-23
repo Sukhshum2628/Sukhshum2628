@@ -61,45 +61,40 @@ STATUS      : Developing STALKER-MP & exploring distributed architectures
 
 ## 💼 Featured Engineering Projects
 
+### 📝 [Flask Blog — AI-Assisted Publishing & Hybrid-Search RAG Platform](https://github.com/Sukhshum2628/Flask-Blog-Website)
+
+> A production-hardened Flask publishing platform with a retrieval-augmented LLM assistant, evaluated end-to-end with an empirical RAGAS harness rather than shipped on assumption.
+
+- **Hybrid Retrieval Architecture:** Dense semantic search (NVIDIA NIM embeddings) fused with sparse BM25 lexical indexing via Reciprocal Rank Fusion, closing the vocabulary-mismatch gap that pure embedding search misses on exact names, numbers, and technical terms.
+- **Empirical RAG Evaluation:** Built a RAGAS-based evaluation harness from scratch — synthetic + manually curated adversarial question sets (negative controls, multi-post synthesis, exact-entity lookups) generated directly from the live corpus, with held-out splits to guard against prompt overfitting.
+- **Root-Caused Multiple Production-Grade Bugs via Evaluation:** Diagnosed and fixed a silent LLM reasoning-token exhaustion bug that was causing the generation client to fall back to an ungrounded prompt on 90%+ of calls, and a RAGAS judge-timeout issue that was silently dropping evaluation samples — both found by refusing to trust aggregate metrics without sample-size and paired-comparison scrutiny.
+- **Security Hardening:** Resolved production/test database cross-contamination with enforced test-database isolation, hardened session, CSRF, and password-reset flows, and reconciled a full security branch into `main` via reviewed PR with a 115-test regression suite.
+- **Operational Hygiene:** Production-safe, read-only-credentialed data export pipeline for evaluation dataset construction; repository cleanup removing 21 stale files while preserving all security and evaluation tooling.
+
+`Tech: Python 3.12 • Flask • MongoDB Atlas • NVIDIA NIM (Llama 3 / Nemotron) • BM25 (rank_bm25) • RAGAS • Gunicorn • Render`
+
 ### 🏗️ [ConstructIQ — AI Construction Intelligence](https://github.com/Sukhshum2628/ConstructIQ)
 
-> AI-assisted construction planning and resource intelligence system bridging architectural CAD design with site execution.
+> AI-assisted construction planning and resource intelligence system bridging architectural CAD design with site execution, built and iterated against real construction drawing sets.
 
-- **CAD-to-Estimate QTO:** Automated `.DXF` geometric parsing (`ezdxf`) generating physical material takeoffs and CPWD labor-day estimates.
-- **Weather & Geofence Gating:** GPS site validation and automated weather checks (Open-Meteo) preventing improper material placement.
-- **Predictive Risk & RAG:** Z-Score material anomaly detection, XGBoost cost overrun classification, and localized project RAG via NVIDIA NIM.
+- **CAD-to-Estimate QTO:** Automated `.DXF` geometric parsing (`ezdxf`) generating physical material takeoffs and CPWD labor-day estimates, validated against real multi-page commercial drawing sets.
+- **LangGraph ReAct Project Analyst Agent:** An agentic project-analysis layer on top of the estimation pipeline, paired with a PlanSwift-style estimation engine and CSI MasterFormat BOQ PDF export.
+- **On-Device ML PDF Parser:** ONNX-based parsing pipeline debugged against real failure modes — wrong scale-token extraction, naive sheet segmentation, and missing letterbox coordinate transforms — with off-the-shelf datasets (WAFFLE, RPLAN) evaluated and rejected after manual inspection in favor of a custom-annotated dataset path.
+- **Predictive Risk & RAG:** Z-score material anomaly detection, an XGBoost cost-overrun classifier (honestly reported at AUC 0.92 on an engineered synthetic dataset, not overstated), and localized project RAG via NVIDIA NIM.
+- **Reliability Engineering:** Fixed out-of-memory crashes via adaptive render scaling; added FCM push notifications and offline sync across inventory, safety, and S-curve scheduling modules.
 
-`Tech: Python • FastAPI • Flutter • XGBoost • ChromaDB • NVIDIA NIM • Firebase`
-
-### 🚨 [EduSafe — AI Disaster Preparedness Platform](https://github.com/Sukhshum2628/Edusafe-Platform)
-
-> Institutional emergency drill and safety command system pairing real-time IoT overlays with mobile physics verification. [**Live Admin Demo**](https://edusafe-613b7.web.app)
-
-- **Physics Drill Verification:** Evaluates device accelerometer G-forces and GPS displacement vectors to verify genuine safety actions.
-- **AI Vision Gear Check:** Integrates Google Gemini 2.5 Flash for verified photographic inspection of safety equipment.
-- **Real-Time Broadcast:** Synchronized Socket.IO engine delivering high-vibration alerts and dynamic safe muster point routing.
-
-`Tech: Node.js • Express • React 19 • React Native • Socket.IO • Gemini 2.5 Flash • MongoDB`
-
-### 📝 [Flask Blog — AI-Assisted Publishing Platform](https://github.com/Sukhshum2628/Flask-Blog-Website)
-
-> Performance-optimized publishing engine featuring asynchronous AI workflows and smart caching.
-
-- **Non-Blocking Inference:** Offloads LLM research and summarization to background threads (`ThreadPoolExecutor`) for high concurrency.
-- **AI Research & Caching:** Web-grounded writing assistance (Tavily & Llama 3.1) with MongoDB-backed response caching to avoid redundant calls.
-
-`Tech: Python 3.12 • Flask • MongoDB Atlas • Llama 3.1 (NVIDIA NIM) • Tavily API • Gunicorn`
+`Tech: Python • FastAPI • Flutter • LangChain • LangGraph • XGBoost • ChromaDB • ONNX • NVIDIA NIM • Firebase`
 
 ---
 
 ## 🛠️ Technical Stack
 
-- **Languages:** `C++17`, `Python`, `TypeScript`, `JavaScript`, `SQL`
-- **Backend & APIs:** `Node.js`, `Express`, `FastAPI`, `Flask`, `Socket.IO`, `REST`
-- **Databases & Vector:** `MongoDB`, `MySQL`, `ChromaDB`, `Firebase Firestore`
-- **Cloud & DevOps:** `Docker`, `AWS`, `GitHub Actions`, `Linux / Bash`, `Vercel`
-- **AI & Machine Learning:** `NVIDIA NIM`, `Gemini API`, `XGBoost`, `ezdxf CAD Engine`
-- **Frontend & Mobile:** `React 19`, `React Native (Expo)`, `Flutter`, `Tailwind CSS`
+- **Languages:**  `Python`, `C++17`, `Dart` 
+- **Backend & APIs:**  `FastAPI`, `Flask`, `Socket.IO`, `REST`
+- **Databases & Vector:** `MongoDB`, `MySQL`, `PostgreSQL`, `ChromaDB`, `Firebase Firestore`
+- **Cloud & DevOps:** `Docker`,  `GitHub Actions`, `Linux / Bash`, `Vercel`, `Render`
+- **AI & Machine Learning:**  `NumPy`, `Pandas`, `RAGAS`, `LangChain`, `LangGraph`, `XGBoost`, `ONNX`, `Transformers`, `DeepEval`
+
 
 ---
 
